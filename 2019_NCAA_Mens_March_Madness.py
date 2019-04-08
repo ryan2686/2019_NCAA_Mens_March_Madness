@@ -266,29 +266,60 @@ df_X = pd.DataFrame(X, columns=['ELO', 'Score','FGP', 'FGA', 'FGA3', '3PP', 'FTP
 print("Fitting on %d samples." % len(X))
 
 
-# X_features = ['ELO','AST','PPP','3PP','EM','LELO','LAST','LPPP','L3PP','LEM']
+X_features = ['ELO','AST','PPP','3PP','EM','LELO','LAST','LPPP','L3PP','LEM']
 Xs = df_X.values
 
 
-# logreg = LogisticRegression()
-# params = {'C': np.logspace(start=-5, stop=3, num=9)}
+logreg = LogisticRegression()
+params = {'C': np.logspace(start=-5, stop=3, num=9)}
 
-# gb = GradientBoostingClassifier(n_estimators=250)
-# params = {'max_depth': [2]}
-# model = GridSearchCV(gb, params, scoring='neg_log_loss', refit=True)
-# model.fit(Xs, y)
-# print('Best log_loss: {:.4}, with best params: {}'.format(model.best_score_, model.best_params_))
+gb = GradientBoostingClassifier(n_estimators=250)
+params = {'max_depth': [2]}
+model = GridSearchCV(gb, params, scoring='neg_log_loss', refit=True)
+model.fit(Xs, y)
+print('Best log_loss: {:.4}, with best params: {}'.format(model.best_score_, model.best_params_))
 
-# # Check accuracy.
-# print("Doing cross-validation.")
-# print(cross_val_score(
-#     model, np.array(Xs), np.array(y), cv=10, scoring='neg_log_loss', n_jobs=-1
-# ).mean())
+# Check accuracy.
+print("Doing cross-validation.")
+print(cross_val_score(
+    model, np.array(Xs), np.array(y), cv=10, scoring='neg_log_loss', n_jobs=-1
+).mean())
 
-# model.fit(X, y)
+model.fit(X, y)
 
 #%%
+""" 
+#from sklearn.metrics import make_scorer
+#from sklearn.metrics import f1_score
+import xgboost as xgb
 
+#params = {'C': np.logspace(start=-5, stop=3, num=9)}
+
+params = {  'learning_rate' : [0.1],
+            'n_estimators' : [40],
+            'max_depth' : [3],
+            'min_child_weight' : [3],
+            'gamma' : [0.4],
+            'subsample' : [0.8],
+            'colsample_bytree' : [0.8],
+            'scale_pos_weight' : [1],
+            'reg_alpha' : [1e-5]
+        }
+
+gb = xgb.XGBClassifier(seed=2)
+
+#f1_scorer = make_scorer(f1_score, pos_label='H')
+
+model = GridSearchCV(gb, params, scoring='neg_log_loss', refit=True, cv=5)
+
+model.fit(Xs, y)
+
+print('Best params: {}'.format(model.best_params_))
+
+#model.fit(X, y)
+ """
+
+#%%
 # Show feature importance
 model = GradientBoostingClassifier(n_estimators=250,max_depth=2)
 model.fit(Xs, y)
